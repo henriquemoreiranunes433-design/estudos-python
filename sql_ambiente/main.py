@@ -5,12 +5,15 @@ import os
 dotenv.load_dotenv()
 
 TABLE_NAME = 'customers'
+CURRENT_CURSOR = pymysql.cursors.DictCursor
+
 # CONECTANDO A BASE DE DADOS AO PYMYSQL
 connection = pymysql.connect(
     host=os.environ['MYSQL_HOST'],
     user=os.environ['MYSQL_USER'],       
     password=os.environ['MYSQL_PASSWORD'],  
-    database=os.environ['MYSQL_DATABASE']
+    database=os.environ['MYSQL_DATABASE'],
+    cursorclass=CURRENT_CURSOR
 )
 # CONECTANDO O CURSOR
 cursor = connection.cursor()
@@ -70,12 +73,18 @@ deleta = f'DELETE FROM {TABLE_NAME} WHERE id = %s'
 cursor.execute(deleta, (4,))
 
 # SELECIONA TODOS OS VALORES DA TABELA
-cursor.execute(f'SELECT * FROM {TABLE_NAME}')
+result = cursor.execute(f'SELECT * FROM {TABLE_NAME}')
 
 registros = cursor.fetchall()
 
 for row in registros:
-   print(f"ID: {row[0]} | Nome: {row[1]} | Idade: {row[2]} | endereço: {row[3]}")
+   print(row)
+   
+print('linhas afetadas:', result)
+print('linhas afetadas:', len(registros))
+
+# RETORNA A QUANTIDADE DE LINHAS AFETADAS NA ULTIMA OPERAÇÃO REALIZADA
+print('rowcount', cursor.rowcount)
 connection.commit()
 
 # FECHANDO CONEXÕES
